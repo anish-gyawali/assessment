@@ -5,6 +5,7 @@ import (
 	"github.com/anish-gyawali/assessment/server/controller"
 	"github.com/anish-gyawali/assessment/server/repository"
 	"github.com/anish-gyawali/assessment/server/service"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -19,6 +20,11 @@ var (
 func main() {
 	defer config.CloseDatabaseConnection(db)
 	r := gin.Default()
+	r.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"POST", "PUT", "PATCH", "DELETE"},
+		AllowHeaders: []string{"Content-Type,access-control-allow-origin, access-control-allow-headers"},
+	}))
 	dataRoutes := r.Group("api/datas")
 	{
 		dataRoutes.GET("/", dataController.All)
