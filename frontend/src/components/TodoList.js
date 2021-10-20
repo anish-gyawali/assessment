@@ -1,17 +1,38 @@
 import React, { useEffect, useState } from "react";
 import ApiServices from "../services/api-services";
 import "./TodoList.css";
-export default function TodoList() {
+
+export default function TodoList(props) {
   const [todoList, setTodoList] = useState([]);
   const [data, setData] = useState("");
+
   useEffect(() => {
+    //List all the items that are posted
     ApiServices.getAllData()
       .then((res) => {
-        console.log(res.data);
         setTodoList(res.data);
       })
       .catch((err) => console.error(err));
   }, []);
+
+  //Function to remove the itemn
+  function remove(id) {
+    ApiServices.removeData(id)
+      .then((res) => {
+        console.log(res.data);
+        const myalldata = todoList.filter((item) => item.id !== id);
+        setTodoList(myalldata);
+      })
+      .catch((err) => console.error(err));
+  }
+
+  //pass id as props to update the specific item
+  function Update(id) {
+    console.log(id);
+    props.history.push("/Update/" + id);
+  }
+
+  //function to submit the item to add on the list
   function submit(e) {
     e.preventDefault();
     ApiServices.postData({ title: data }).then((res) => {
@@ -20,23 +41,30 @@ export default function TodoList() {
       setTodoList(mydata);
     });
   }
+
   function handle(e) {
     setData(e.target.value);
   }
 
+  //map the array response to display all the items
   const display = todoList.map((item) => (
     <tr key={item.id}>
       <td>{item.title}</td>
       <td>{new Date(item.CreatedAt).toUTCString()}</td>
 
       <td>
-        <button className="btn btn-success">Update</button>
+        <button onClick={() => Update(item.id)} className="btn btn-success">
+          Update
+        </button>
       </td>
       <td>
-        <button className="btn btn-Danger">Delete</button>
+        <button onClick={() => remove(item.id)} className="btn btn-danger">
+          Delete
+        </button>
       </td>
     </tr>
   ));
+
   return (
     <div className="conatainer">
       <form onSubmit={(e) => submit(e)}>
@@ -52,7 +80,9 @@ export default function TodoList() {
             onChange={(e) => handle(e)}
           />
         </div>
-        <button className="btn btn-primary">Submit</button>
+        <button className="btn btn-primary" style={{ marginBottom: "1rem" }}>
+          Submit
+        </button>
       </form>
       <table className="table table-stripped">
         <tbody>{display}</tbody>
