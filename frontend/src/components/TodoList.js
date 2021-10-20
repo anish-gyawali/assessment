@@ -36,7 +36,6 @@ export default function TodoList(props) {
   function submit(e) {
     e.preventDefault();
     ApiServices.postData({ title: data }).then((res) => {
-      console.log(res.data);
       const mydata = [...todoList, res.data];
       setTodoList(mydata);
     });
@@ -65,13 +64,21 @@ export default function TodoList(props) {
     </tr>
   ));
 
+  //sort data to display latest created data first
+  const sortData = display.sort((a, b) => {
+    if (new Date(a.createdAt) > new Date(b.createdAt)) {
+      return 1;
+    }
+    return -1;
+  });
+
   return (
     <div className="conatainer">
       <form onSubmit={(e) => submit(e)}>
         <div className="form-group" style={{ paddingBottom: "1rem" }}>
           <label htmlFor="items"> Add Todo Items</label>
           <input
-            defaultValue={data}
+            value={data}
             type="text"
             name="items"
             id="items"
@@ -85,7 +92,7 @@ export default function TodoList(props) {
         </button>
       </form>
       <table className="table table-stripped">
-        <tbody>{display}</tbody>
+        <tbody>{sortData}</tbody>
       </table>
     </div>
   );
